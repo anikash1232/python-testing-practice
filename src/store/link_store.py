@@ -45,8 +45,7 @@ class LinkStore:
             url: Link object to store and persist.
         """
         self._urls[slug] = url
-        serialized = {key: link.model_dump() for key, link in self._urls.items()}
-        self._storage.persist(serialized)
+        self._persist()
 
     def delete(self, slug: str) -> None:
         """Remove a stored link.
@@ -55,14 +54,10 @@ class LinkStore:
             slug: Short identifier for the link.
         """
         self._urls.pop(slug, None)
-
-        data = {}
-        for s, link in self._urls.items():
-            data[s] = link.model_dump()
-
-        self._storage.persist(data)
+        self._persist()
 
     def list(self) -> dict[str, Link]:
+        """Return a copy of all stored links."""
         return self._urls.copy()
 
     def _load_data(self) -> dict[str, Link]:
@@ -76,3 +71,8 @@ class LinkStore:
             return {}
 
         return {slug: Link(**link_data) for slug, link_data in data.items()}
+
+    def _persist(self) -> None:
+        """Serialize current links and persist to storage."""
+        data = {slug: link.model_dump() for slug, link in self._urls.items()}
+        self._storage.persist(data)
