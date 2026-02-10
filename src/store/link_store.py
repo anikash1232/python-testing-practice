@@ -54,7 +54,13 @@ class LinkStore:
         Args:
             slug: Short identifier for the link.
         """
-        ...
+        self._urls.pop(slug, None)
+
+        data = {}
+        for s, link in self._urls.items():
+            data[s] = link.model_dump()
+
+        self._storage.persist(data)
 
     def list(self) -> dict[str, Link]:
         return self._urls.copy()
