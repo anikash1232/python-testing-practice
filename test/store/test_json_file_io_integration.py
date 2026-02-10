@@ -1,5 +1,6 @@
 """Integration tests for JSONFileIO with actual file operations."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -51,3 +52,19 @@ def test_load_returns_empty_dict_from_empty_file(tmp_path: Path) -> None:
 
     # Assert
     assert result == {}
+
+
+@pytest.mark.integration
+def test_persist_writes_json_file(tmp_path: Path) -> None:
+    """Test that persist writes the provided data to disk."""
+    # Arrange
+    file_path = tmp_path / "links.json"
+    io = JSONFileIO(file_path)
+    data = {"example": {"slug": "example", "target": "https://example.com"}}
+
+    # Act
+    io.persist(data)
+
+    # Assert
+    content = file_path.read_text(encoding="utf-8")
+    assert json.loads(content) == data
