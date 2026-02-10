@@ -49,4 +49,7 @@ class JSONFileIO:
         Args:
             data: Data to persist to the file.
         """
-        ...
+        self._data_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with self._data_path.open("w") as f:
+            json.dump(data, f)
