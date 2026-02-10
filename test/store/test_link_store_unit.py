@@ -88,3 +88,24 @@ def test_put_stores_link_and_persists() -> None:
 
     # Assert: persistence called with serialized data
     mock_storage.persist.assert_called_once_with({"example": link.model_dump()})
+
+def test_delete_removes_existing_slug_and_persists() -> None:
+    """Test that delete removes an existing slug and persists updated data."""
+    # Arrange
+    mock_storage = MagicMock(spec=JSONFileIO)
+    mock_storage.load.return_value = {
+        "example": {"slug": "example", "target": "https://example.com"},
+        "github": {"slug": "github", "target": "https://github.com"},
+    }
+    store = LinkStore(storage=mock_storage)
+
+    # Act
+    store.delete("example")
+
+    # Assert: removed
+    assert store.get("example") is None
+
+    # Assert: persisted with remaining data
+    mock_storage.persist.assert_called_once_with(
+        {"github": {"slug": "github", "target": "https://github.com"}}
+    )
