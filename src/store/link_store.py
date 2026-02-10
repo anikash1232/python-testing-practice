@@ -44,7 +44,9 @@ class LinkStore:
             slug: Short identifier for the link.
             url: Link object to store and persist.
         """
-        ...
+        self._urls[slug] = url
+        serialized = {key: link.model_dump() for key, link in self._urls.items()}
+        self._storage.persist(serialized)
 
     def delete(self, slug: str) -> None:
         """Remove a stored link.
