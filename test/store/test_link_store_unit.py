@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock
 
+from models.link import Link
 from store.json_file_io import JSONFileIO
 from store.link_store import LinkStore
 
@@ -65,3 +66,25 @@ def test_list_returns_links_dict_and_is_copy() -> None:
     assert result1["github"].target == "https://github.com"
 
     mock_storage.load.assert_called_once()
+
+
+def test_put_stores_link_and_persists() -> None:
+    """Test that put stores the link and persists serialized data."""
+    # Arrange
+    mock_storage = MagicMock(spec=JSONFileIO)
+    mock_storage.load.return_value = {}
+    store = LinkStore(storage=mock_storage)
+
+    link = Link(slug="example", target="https://example.com")
+
+    # Act
+    store.put("example", link)
+
+    # Assert: internal state updated
+    result = store.get("example")
+    assert result is not None
+    assert result.slug == "example"
+    assert result.target == "https://example.com"
+
+    # Assert: persistence called with serialized data
+    mock_storage.persist.assert_called_once_with({"example": link.model_dump()})
