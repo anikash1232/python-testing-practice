@@ -55,12 +55,7 @@ class LinkStore:
         ...
 
     def list(self) -> dict[str, Link]:
-        """Return all stored links.
-
-        Returns:
-            Mapping of slug to stored link.
-        """
-        ...
+        return self._urls.copy()
 
     def _load_data(self) -> dict[str, Link]:
         """Load persisted links from disk if data path exists.
