@@ -41,3 +41,27 @@ def test_get_returns_none_when_slug_not_found() -> None:
     # Assert
     assert result is None
     mock_storage.load.assert_called_once()
+
+
+def test_list_returns_links_dict_and_is_copy() -> None:
+    """Test that list returns a dict of Link objects and not a reference to internal state."""
+    # Arrange
+    mock_storage = MagicMock(spec=JSONFileIO)
+    mock_storage.load.return_value = {
+        "example": {"slug": "example", "target": "https://example.com"},
+        "github": {"slug": "github", "target": "https://github.com"},
+    }
+    store = LinkStore(storage=mock_storage)
+
+    # Act
+    result1 = store.list()
+
+    # Assert: correct structure/content
+
+    assert set(result1.keys()) == {"example", "github"}
+    assert result1["example"].slug == "example"
+    assert result1["example"].target == "https://example.com"
+    assert result1["github"].slug == "github"
+    assert result1["github"].target == "https://github.com"
+
+    mock_storage.load.assert_called_once()
