@@ -89,6 +89,7 @@ def test_put_stores_link_and_persists() -> None:
     # Assert: persistence called with serialized data
     mock_storage.persist.assert_called_once_with({"example": link.model_dump()})
 
+
 def test_delete_removes_existing_slug_and_persists() -> None:
     """Test that delete removes an existing slug and persists updated data."""
     # Arrange
