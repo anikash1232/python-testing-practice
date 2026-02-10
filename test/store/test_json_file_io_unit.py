@@ -1,5 +1,6 @@
 """Unit tests for JSONFileIO without disk operations."""
 
+import json
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -39,3 +40,27 @@ def test_load_returns_data_from_file() -> None:
     assert result == test_data
     mock_path.exists.assert_called_once()
     mock_file.assert_called_once_with("r")
+
+
+def test_persist_creates_parent_dir_and_writes_json():
+    # Arrange
+    mock_path = MagicMock(spec=Path)
+
+    mock_parent = MagicMock(spec=Path)
+    mock_path.parent = mock_parent
+
+    test_data = {"key": "value", "number": 42}
+    m_open = mock_open()
+
+    storage = JSONFileIO(data_path=mock_path)
+
+    # Act
+    with patch.object(mock_path, "open", m_open):
+        with patch.object(json, "dump") as mock_json_dump:
+            storage.persist(test_data)
+
+    # Asssert
+    mock_parent.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+    m_open.assert_called_once_with("w")
+    handle = m_open()
+    mock_json_dump.assert_called_once_with(test_data, handle)
